@@ -1,0 +1,10 @@
+-- Demo records are created automatically for each new organization by the
+-- handle_new_greentrack_user trigger in schema.sql. Each organization receives
+-- six species, four Bengaluru-area locations, 26 varied trees, maintenance
+-- history, health alerts, and attention recommendations.
+--
+-- To seed an already-existing empty organization manually, first find its
+-- organization UUID in public.profiles, then run:
+-- select public.seed_greentrack_org('YOUR_ORGANIZATION_UUID'::uuid,
+--                                    'YOUR_AUTH_USER_UUID'::uuid,
+--                                    'Administrator name');

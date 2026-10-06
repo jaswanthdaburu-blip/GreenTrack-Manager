@@ -3,20 +3,27 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: GreenTrack tree plantation management API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
-    description: Health operations
+  - name: auth
+  - name: dashboard
+  - name: trees
+  - name: species
+  - name: locations
+  - name: maintenance
+  - name: alerts
+  - name: ai
+  - name: reports
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
-      summary: Health check
-      description: Returns server health status
+      summary: Check API health
       responses:
         "200":
           description: Healthy
@@ -24,13 +31,715 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /session:
+    post:
+      operationId: createSession
+      tags: [auth]
+      summary: Verify a Supabase session and set an HTTP-only API cookie
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SessionInput"
+      responses:
+        "204":
+          description: Session cookie set
+        "401":
+          description: Supabase session is invalid
+    delete:
+      operationId: deleteSession
+      tags: [auth]
+      summary: Clear the API session cookie
+      responses:
+        "204":
+          description: Session cookie cleared
+  /dashboard/statistics:
+    get:
+      operationId: getDashboardStatistics
+      tags: [dashboard]
+      summary: Get organization tree totals and survival rate
+      responses:
+        "200":
+          description: Dashboard statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStatistics"
+  /dashboard/trends:
+    get:
+      operationId: getDashboardTrends
+      tags: [dashboard]
+      summary: Get species, location, trend, and maintenance chart series
+      responses:
+        "200":
+          description: Chart series
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardTrends"
+  /trees:
+    get:
+      operationId: listTrees
+      tags: [trees]
+      summary: Search and filter organization trees
+      parameters:
+        - name: search
+          in: query
+          schema: { type: string }
+        - name: status
+          in: query
+          schema: { type: string, enum: [Alive, Dead, "Needs Attention"] }
+        - name: health
+          in: query
+          schema: { type: string, enum: [Healthy, Moderate, Poor, Critical, Unknown] }
+        - name: speciesId
+          in: query
+          schema: { type: string, format: uuid }
+        - name: locationId
+          in: query
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: Matching trees
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Tree" }
+    post:
+      operationId: createTree
+      tags: [trees]
+      summary: Add a tree
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TreeInput" }
+      responses:
+        "201":
+          description: Created tree
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Tree" }
+  /trees/{treeId}:
+    parameters:
+      - name: treeId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      operationId: getTree
+      tags: [trees]
+      summary: Get a tree and its joined species/location details
+      responses:
+        "200":
+          description: Tree
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Tree" }
+        "404": { description: Tree not found }
+    patch:
+      operationId: updateTree
+      tags: [trees]
+      summary: Update a tree
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TreeUpdate" }
+      responses:
+        "200":
+          description: Updated tree
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Tree" }
+    delete:
+      operationId: deleteTree
+      tags: [trees]
+      summary: Delete a tree
+      responses:
+        "204": { description: Tree deleted }
+  /species:
+    get:
+      operationId: listSpecies
+      tags: [species]
+      summary: List organization species and planted counts
+      responses:
+        "200":
+          description: Species
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Species" }
+    post:
+      operationId: createSpecies
+      tags: [species]
+      summary: Add a species
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SpeciesInput" }
+      responses:
+        "201":
+          description: Created species
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Species" }
+  /species/{speciesId}:
+    parameters:
+      - name: speciesId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    patch:
+      operationId: updateSpecies
+      tags: [species]
+      summary: Update a species
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SpeciesUpdate" }
+      responses:
+        "200":
+          description: Updated species
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Species" }
+    delete:
+      operationId: deleteSpecies
+      tags: [species]
+      summary: Delete a species
+      responses:
+        "204": { description: Species deleted }
+  /locations:
+    get:
+      operationId: listLocations
+      tags: [locations]
+      summary: List organization locations
+      responses:
+        "200":
+          description: Locations
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Location" }
+    post:
+      operationId: createLocation
+      tags: [locations]
+      summary: Add a location
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/LocationInput" }
+      responses:
+        "201":
+          description: Created location
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Location" }
+  /locations/{locationId}:
+    parameters:
+      - name: locationId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    patch:
+      operationId: updateLocation
+      tags: [locations]
+      summary: Update a location
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/LocationUpdate" }
+      responses:
+        "200":
+          description: Updated location
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Location" }
+    delete:
+      operationId: deleteLocation
+      tags: [locations]
+      summary: Delete a location
+      responses:
+        "204": { description: Location deleted }
+  /maintenance:
+    get:
+      operationId: listMaintenance
+      tags: [maintenance]
+      summary: List maintenance activities and joined tree labels
+      parameters:
+        - name: treeId
+          in: query
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: Maintenance records
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Maintenance" }
+    post:
+      operationId: createMaintenance
+      tags: [maintenance]
+      summary: Add a maintenance activity
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/MaintenanceInput" }
+      responses:
+        "201":
+          description: Created maintenance activity
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Maintenance" }
+  /maintenance/{maintenanceId}:
+    parameters:
+      - name: maintenanceId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    patch:
+      operationId: updateMaintenance
+      tags: [maintenance]
+      summary: Update a maintenance activity
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/MaintenanceUpdate" }
+      responses:
+        "200":
+          description: Updated maintenance activity
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Maintenance" }
+    delete:
+      operationId: deleteMaintenance
+      tags: [maintenance]
+      summary: Delete a maintenance activity
+      responses:
+        "204": { description: Maintenance activity deleted }
+  /alerts:
+    get:
+      operationId: listAlerts
+      tags: [alerts]
+      summary: List open organization alerts
+      responses:
+        "200":
+          description: Alerts
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Alert" }
+  /alerts/{alertId}:
+    parameters:
+      - name: alertId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    patch:
+      operationId: updateAlert
+      tags: [alerts]
+      summary: Update an alert status
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AlertUpdate" }
+      responses:
+        "200":
+          description: Updated alert
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Alert" }
+    delete:
+      operationId: deleteAlert
+      tags: [alerts]
+      summary: Delete an alert
+      responses:
+        "204": { description: Alert deleted }
+  /ai/health-analysis:
+    post:
+      operationId: analyzeTreeHealth
+      tags: [ai]
+      summary: Analyze a stored tree image, with a rule-based fallback
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/HealthAnalysisInput" }
+      responses:
+        "200":
+          description: Health assessment
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/HealthAnalysis" }
+  /ai/survival-prediction:
+    post:
+      operationId: predictTreeSurvival
+      tags: [ai]
+      summary: Estimate survival probability and factors
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SurvivalInput" }
+      responses:
+        "200":
+          description: Survival estimate
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SurvivalPrediction" }
+  /ai/recommendations:
+    get:
+      operationId: getAiRecommendations
+      tags: [ai]
+      summary: Get maintenance recommendations from organization tree data
+      responses:
+        "200":
+          description: Recommendations
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Recommendation" }
+  /ai/insights:
+    get:
+      operationId: getAiInsights
+      tags: [ai]
+      summary: Summarize measured organization survival and maintenance patterns
+      responses:
+        "200":
+          description: Insights
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Insight" }
+  /ai/chat:
+    post:
+      operationId: chatWithAi
+      tags: [ai]
+      summary: Answer a question using current organization data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ChatInput" }
+      responses:
+        "200":
+          description: Data-grounded response
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ChatResponse" }
+  /reports/summary:
+    get:
+      operationId: getReportsSummary
+      tags: [reports]
+      summary: Get live report totals for CSV and on-screen reports
+      responses:
+        "200":
+          description: Report summary
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ReportsSummary" }
 components:
   schemas:
     HealthStatus:
       type: object
       properties:
-        status:
-          type: string
-      required:
-        - status
-
+        status: { type: string }
+      required: [status]
+    SessionInput:
+      type: object
+      properties:
+        accessToken: { type: string, minLength: 1 }
+      required: [accessToken]
+    Species:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        speciesName: { type: string }
+        commonName: { type: string }
+        scientificName: { type: string }
+        description: { type: ["string", "null"] }
+        suitableClimate: { type: ["string", "null"] }
+        waterRequirement: { type: ["string", "null"] }
+        growthInformation: { type: ["string", "null"] }
+        treeCount: { type: integer }
+        survivalRate: { type: ["number", "null"] }
+      required: [id, speciesName, commonName, scientificName, treeCount]
+    SpeciesInput:
+      type: object
+      properties:
+        speciesName: { type: string, minLength: 1 }
+        commonName: { type: string, minLength: 1 }
+        scientificName: { type: string, minLength: 1 }
+        description: { type: string }
+        suitableClimate: { type: string }
+        waterRequirement: { type: string }
+        growthInformation: { type: string }
+      required: [speciesName, commonName, scientificName]
+    SpeciesUpdate:
+      type: object
+      properties:
+        speciesName: { type: string, minLength: 1 }
+        commonName: { type: string, minLength: 1 }
+        scientificName: { type: string, minLength: 1 }
+        description: { type: ["string", "null"] }
+        suitableClimate: { type: ["string", "null"] }
+        waterRequirement: { type: ["string", "null"] }
+        growthInformation: { type: ["string", "null"] }
+    Location:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        label: { type: string }
+        address: { type: ["string", "null"] }
+        area: { type: ["string", "null"] }
+        city: { type: ["string", "null"] }
+        state: { type: ["string", "null"] }
+        country: { type: ["string", "null"] }
+        latitude: { type: ["number", "null"] }
+        longitude: { type: ["number", "null"] }
+        treeCount: { type: integer }
+        survivalRate: { type: ["number", "null"] }
+      required: [id, label, treeCount]
+    LocationInput:
+      type: object
+      properties:
+        label: { type: string, minLength: 1 }
+        address: { type: string }
+        area: { type: string }
+        city: { type: string }
+        state: { type: string }
+        country: { type: string }
+        latitude: { type: ["number", "null"] }
+        longitude: { type: ["number", "null"] }
+      required: [label]
+    LocationUpdate:
+      type: object
+      properties:
+        label: { type: string, minLength: 1 }
+        address: { type: ["string", "null"] }
+        area: { type: ["string", "null"] }
+        city: { type: ["string", "null"] }
+        state: { type: ["string", "null"] }
+        country: { type: ["string", "null"] }
+        latitude: { type: ["number", "null"] }
+        longitude: { type: ["number", "null"] }
+    Tree:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        treeCode: { type: string }
+        speciesId: { type: string, format: uuid }
+        speciesName: { type: string }
+        commonName: { type: string }
+        scientificName: { type: string }
+        locationId: { type: string, format: uuid }
+        locationLabel: { type: string }
+        area: { type: ["string", "null"] }
+        city: { type: ["string", "null"] }
+        latitude: { type: ["number", "null"] }
+        longitude: { type: ["number", "null"] }
+        plantingDate: { type: string, format: date }
+        status: { type: string, enum: [Alive, Dead, "Needs Attention"] }
+        healthCondition: { type: string, enum: [Healthy, Moderate, Poor, Critical, Unknown] }
+        imageUrl: { type: ["string", "null"] }
+        notes: { type: ["string", "null"] }
+        lastMaintainedAt: { type: ["string", "null"], format: date-time }
+        survivalProbability: { type: ["number", "null"] }
+        riskLevel: { type: ["string", "null"], enum: [Low, Medium, High, Critical, null] }
+        createdAt: { type: string, format: date-time }
+      required: [id, treeCode, speciesId, speciesName, commonName, locationId, locationLabel, plantingDate, status, healthCondition, createdAt]
+    TreeInput:
+      type: object
+      properties:
+        treeCode: { type: string, minLength: 1 }
+        speciesId: { type: string, format: uuid }
+        locationId: { type: string, format: uuid }
+        plantingDate: { type: string, format: date }
+        status: { type: string, enum: [Alive, Dead, "Needs Attention"] }
+        healthCondition: { type: string, enum: [Healthy, Moderate, Poor, Critical, Unknown] }
+        latitude: { type: ["number", "null"] }
+        longitude: { type: ["number", "null"] }
+        imageUrl: { type: ["string", "null"] }
+        notes: { type: ["string", "null"] }
+      required: [treeCode, speciesId, locationId, plantingDate, status, healthCondition]
+    TreeUpdate:
+      type: object
+      properties:
+        treeCode: { type: string, minLength: 1 }
+        speciesId: { type: string, format: uuid }
+        locationId: { type: string, format: uuid }
+        plantingDate: { type: string, format: date }
+        status: { type: string, enum: [Alive, Dead, "Needs Attention"] }
+        healthCondition: { type: string, enum: [Healthy, Moderate, Poor, Critical, Unknown] }
+        latitude: { type: ["number", "null"] }
+        longitude: { type: ["number", "null"] }
+        imageUrl: { type: ["string", "null"] }
+        notes: { type: ["string", "null"] }
+    Maintenance:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        treeId: { type: string, format: uuid }
+        treeCode: { type: string }
+        speciesName: { type: string }
+        locationLabel: { type: string }
+        maintenanceType: { type: string }
+        maintenanceDate: { type: string, format: date }
+        description: { type: ["string", "null"] }
+        notes: { type: ["string", "null"] }
+        staffName: { type: ["string", "null"] }
+        createdAt: { type: string, format: date-time }
+      required: [id, treeId, treeCode, maintenanceType, maintenanceDate, createdAt]
+    MaintenanceInput:
+      type: object
+      properties:
+        treeId: { type: string, format: uuid }
+        maintenanceType: { type: string, enum: [Watering, Fertilizing, Pruning, "Pest Control", "Disease Treatment", "Soil Treatment", Other] }
+        maintenanceDate: { type: string, format: date }
+        description: { type: string }
+        notes: { type: string }
+      required: [treeId, maintenanceType, maintenanceDate]
+    MaintenanceUpdate:
+      type: object
+      properties:
+        treeId: { type: string, format: uuid }
+        maintenanceType: { type: string, enum: [Watering, Fertilizing, Pruning, "Pest Control", "Disease Treatment", "Soil Treatment", Other] }
+        maintenanceDate: { type: string, format: date }
+        description: { type: ["string", "null"] }
+        notes: { type: ["string", "null"] }
+    Alert:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        treeId: { type: ["string", "null"], format: uuid }
+        treeCode: { type: ["string", "null"] }
+        alertType: { type: string }
+        priority: { type: string, enum: [LOW, MEDIUM, HIGH, CRITICAL] }
+        message: { type: string }
+        status: { type: string, enum: [Open, Acknowledged, Resolved] }
+        createdAt: { type: string, format: date-time }
+      required: [id, alertType, priority, message, status, createdAt]
+    AlertUpdate:
+      type: object
+      properties:
+        status: { type: string, enum: [Open, Acknowledged, Resolved] }
+      required: [status]
+    DashboardStatistics:
+      type: object
+      properties:
+        totalTrees: { type: integer }
+        livingTrees: { type: integer }
+        deadTrees: { type: integer }
+        attentionCount: { type: integer }
+        survivalRate: { type: number }
+        speciesCount: { type: integer }
+        locationCount: { type: integer }
+        openAlerts: { type: integer }
+      required: [totalTrees, livingTrees, deadTrees, attentionCount, survivalRate, speciesCount, locationCount, openAlerts]
+    ChartPoint:
+      type: object
+      properties:
+        name: { type: string }
+        value: { type: number }
+        secondaryValue: { type: ["number", "null"] }
+      required: [name, value]
+    DashboardTrends:
+      type: object
+      properties:
+        species: { type: array, items: { $ref: "#/components/schemas/ChartPoint" } }
+        locations: { type: array, items: { $ref: "#/components/schemas/ChartPoint" } }
+        planting: { type: array, items: { $ref: "#/components/schemas/ChartPoint" } }
+        maintenance: { type: array, items: { $ref: "#/components/schemas/ChartPoint" } }
+      required: [species, locations, planting, maintenance]
+    HealthAnalysisInput:
+      type: object
+      properties:
+        treeId: { type: string, format: uuid }
+        imageUrl: { type: string, minLength: 1 }
+      required: [treeId, imageUrl]
+    HealthAnalysis:
+      type: object
+      properties:
+        treeId: { type: string, format: uuid }
+        healthStatus: { type: string, enum: [Healthy, Moderate, Poor, Critical, Unknown] }
+        possibleIssue: { type: string }
+        confidenceScore: { type: number, minimum: 0, maximum: 1 }
+        recommendation: { type: string }
+        assessmentType: { type: string, enum: [AI, Rule-based] }
+        disclaimer: { type: string }
+      required: [treeId, healthStatus, possibleIssue, confidenceScore, recommendation, assessmentType, disclaimer]
+    SurvivalInput:
+      type: object
+      properties:
+        treeId: { type: string, format: uuid }
+      required: [treeId]
+    SurvivalPrediction:
+      type: object
+      properties:
+        treeId: { type: string, format: uuid }
+        survivalProbability: { type: number, minimum: 0, maximum: 1 }
+        riskLevel: { type: string, enum: [Low, Medium, High, Critical] }
+        factors: { type: array, items: { type: string } }
+        modelVersion: { type: string }
+        scientificallyValidated: { type: boolean }
+      required: [treeId, survivalProbability, riskLevel, factors, modelVersion, scientificallyValidated]
+    Recommendation:
+      type: object
+      properties:
+        treeId: { type: string, format: uuid }
+        treeCode: { type: string }
+        speciesName: { type: string }
+        locationLabel: { type: string }
+        priority: { type: string, enum: [LOW, MEDIUM, HIGH, CRITICAL] }
+        recommendation: { type: string }
+        reason: { type: string }
+        suggestedTimeframe: { type: string }
+      required: [treeId, treeCode, priority, recommendation, reason, suggestedTimeframe]
+    Insight:
+      type: object
+      properties:
+        title: { type: string }
+        message: { type: string }
+        category: { type: string }
+        priority: { type: string, enum: [LOW, MEDIUM, HIGH] }
+        metric: { type: ["number", "null"] }
+      required: [title, message, category, priority]
+    ChatInput:
+      type: object
+      properties:
+        question: { type: string, minLength: 1, maxLength: 1000 }
+      required: [question]
+    ChatResponse:
+      type: object
+      properties:
+        answer: { type: string }
+        grounded: { type: boolean }
+        sourceCount: { type: integer }
+        responseType: { type: string, enum: [AI, Rule-based, Insufficient Data] }
+      required: [answer, grounded, sourceCount, responseType]
+    ReportsSummary:
+      type: object
+      properties:
+        generatedAt: { type: string, format: date-time }
+        statistics: { $ref: "#/components/schemas/DashboardStatistics" }
+        trees: { type: array, items: { $ref: "#/components/schemas/Tree" } }
+        species: { type: array, items: { $ref: "#/components/schemas/Species" } }
+        locations: { type: array, items: { $ref: "#/components/schemas/Location" } }
+        maintenance: { type: array, items: { $ref: "#/components/schemas/Maintenance" } }
+      required: [generatedAt, statistics, trees, species, locations, maintenance]
