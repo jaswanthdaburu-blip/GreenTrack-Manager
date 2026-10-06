@@ -1,0 +1,1450 @@
+MASTER PROMPT FOR REPLIT AGENT
+
+PROJECT NAME:
+GreenTrack – AI-Powered Tree Plantation Management Platform
+
+ROLE:
+Act as a senior full-stack developer, software architect, UI/UX designer, database engineer, and AI/ML engineer.
+
+Build a complete, working, responsive, production-style full-stack web application called:
+
+"GreenTrack – AI-Powered Tree Plantation Management Platform"
+
+IMPORTANT:
+Do not create only a frontend prototype or static demo.
+
+Build a real working application with:
+- Frontend
+- Backend
+- Supabase database
+- Authentication
+- File storage
+- REST APIs
+- AI features
+- Dashboard
+- Maps
+- Charts
+- CRUD operations
+- Security
+- Error handling
+- Seed/demo data
+
+The application must be runnable directly in Replit.
+
+==================================================
+1. PROBLEM STATEMENT
+==================================================
+
+Organizations plant many trees as part of environmental and sustainability programs.
+
+However, they often have difficulty tracking:
+
+- Trees planted
+- Tree species
+- Plantation locations
+- Tree health
+- Survival status
+- Survival rates
+- Maintenance activities
+- Trees requiring attention
+
+Manual spreadsheets and records make it difficult to monitor trees and make data-driven decisions.
+
+The proposed system should provide one centralized platform where organizations can manage all tree plantation information.
+
+==================================================
+2. EXPECTED OUTCOME
+==================================================
+
+Create an AI-powered full-stack system for organizations to track trees planted, locations, species, survival rates, and maintenance, while using AI to:
+
+1. Analyze tree health
+2. Predict tree survival chances
+3. Recommend maintenance activities
+4. Generate intelligent plantation insights
+5. Identify high-risk trees
+6. Provide an AI chatbot for organization data
+7. Display all important information through an interactive dashboard
+
+==================================================
+3. TECHNOLOGY STACK
+==================================================
+
+Use this stack:
+
+FRONTEND:
+- React.js
+- JavaScript
+- HTML5
+- CSS3
+- React Router
+- Axios
+- Recharts
+
+BACKEND:
+- Node.js
+- Express.js
+- REST APIs
+
+DATABASE:
+- Supabase PostgreSQL
+
+AUTHENTICATION:
+- Supabase Auth
+
+FILE STORAGE:
+- Supabase Storage
+
+AI:
+- Python where required
+- FastAPI for AI services if practical
+- Scikit-learn
+- OpenCV
+- LLM API
+- RAG/database retrieval for chatbot
+
+MAP:
+- Leaflet
+- OpenStreetMap
+
+TOOLS:
+- Git
+- GitHub
+- Replit
+
+IMPORTANT:
+Prefer a simple Replit-compatible architecture.
+
+If running a separate Python AI service is unnecessarily difficult in Replit, implement the AI service using Node.js-compatible APIs or a clean service abstraction, while keeping the AI modules replaceable.
+
+==================================================
+4. SUPABASE CONFIGURATION
+==================================================
+
+Use Supabase as the main backend platform.
+
+Supabase provides:
+
+- PostgreSQL database
+- Authentication
+- Storage
+- Row Level Security
+
+Use environment variables.
+
+DO NOT hardcode credentials.
+
+Create environment variables:
+
+SUPABASE_URL
+SUPABASE_PUBLISHABLE_KEY
+
+If server-side Supabase access is required, use the appropriate server-side credential through Replit Secrets.
+
+IMPORTANT SECURITY:
+
+- Never expose service-role/secret keys in frontend code.
+- Never commit secrets.
+- Use Replit Secrets/environment variables.
+- Never put API keys directly in React source files.
+- Enable Row Level Security.
+- Protect organization-specific data.
+
+The application should work even if the AI API key is not configured initially.
+
+==================================================
+5. APPLICATION ARCHITECTURE
+==================================================
+
+Use:
+
+React Frontend
+       |
+       v
+Node.js + Express Backend
+       |
+       +------------------+
+       |                  |
+       v                  v
+Supabase             AI Service
+PostgreSQL           / AI APIs
+       |
+       v
+Supabase Storage
+
+Use Supabase for:
+
+- Authentication
+- PostgreSQL
+- Storage
+
+Use Express for:
+
+- API routes
+- Business logic
+- AI orchestration
+- Reports
+- Chatbot processing
+- Validation
+
+==================================================
+6. USER ROLES
+==================================================
+
+Implement two roles:
+
+ADMIN:
+- Manage organization
+- Manage users
+- Manage trees
+- Manage species
+- Manage locations
+- Manage maintenance
+- View dashboard
+- View AI insights
+- View reports
+
+STAFF:
+- Add trees
+- Update tree information
+- Add maintenance
+- View trees
+- Upload tree images
+- View AI recommendations
+
+==================================================
+7. AUTHENTICATION
+==================================================
+
+Use Supabase Auth.
+
+Implement:
+
+- Register
+- Login
+- Logout
+- Session persistence
+- Protected routes
+- Role-based access
+- Password reset if practical
+
+Pages:
+
+/login
+/register
+
+After login:
+
+/dashboard
+
+Do not implement insecure custom password storage.
+
+==================================================
+8. DATABASE DESIGN
+==================================================
+
+Create these Supabase PostgreSQL tables:
+
+profiles
+organizations
+organization_members
+species
+locations
+trees
+maintenance
+health_analysis
+survival_predictions
+ai_recommendations
+alerts
+
+RELATIONSHIPS:
+
+Organization
+|
++--- Users
+|
++--- Trees
+      |
+      +--- Species
+      |
+      +--- Location
+      |
+      +--- Maintenance
+      |
+      +--- Health Analysis
+      |
+      +--- Survival Prediction
+      |
+      +--- AI Recommendations
+      |
+      +--- Alerts
+
+==================================================
+9. TABLE STRUCTURE
+==================================================
+
+PROFILES:
+
+id
+full_name
+email
+role
+organization_id
+created_at
+updated_at
+
+ORGANIZATIONS:
+
+id
+name
+description
+contact_email
+created_at
+updated_at
+
+SPECIES:
+
+id
+species_name
+common_name
+scientific_name
+description
+suitable_climate
+water_requirement
+growth_information
+created_at
+
+LOCATIONS:
+
+id
+organization_id
+address
+area
+city
+state
+country
+latitude
+longitude
+created_at
+
+TREES:
+
+id
+organization_id
+species_id
+location_id
+tree_code
+planting_date
+status
+health_condition
+image_url
+notes
+created_by
+created_at
+updated_at
+
+TREE STATUS:
+
+Alive
+Dead
+Needs Attention
+
+HEALTH CONDITION:
+
+Healthy
+Moderate
+Poor
+Critical
+Unknown
+
+MAINTENANCE:
+
+id
+tree_id
+user_id
+maintenance_type
+maintenance_date
+description
+notes
+created_at
+
+HEALTH_ANALYSIS:
+
+id
+tree_id
+image_url
+health_status
+possible_issue
+confidence_score
+ai_recommendation
+created_at
+
+SURVIVAL_PREDICTIONS:
+
+id
+tree_id
+survival_probability
+risk_level
+prediction_factors
+model_version
+created_at
+
+AI_RECOMMENDATIONS:
+
+id
+tree_id
+recommendation_type
+priority
+recommendation
+reason
+suggested_timeframe
+created_at
+
+ALERTS:
+
+id
+organization_id
+tree_id
+alert_type
+priority
+message
+status
+created_at
+
+==================================================
+10. ROW LEVEL SECURITY
+==================================================
+
+Enable RLS on all organization-specific tables.
+
+Users should only access data belonging to their organization.
+
+Implement appropriate policies for:
+
+SELECT
+INSERT
+UPDATE
+DELETE
+
+Do not depend only on frontend authorization.
+
+Database security must also be implemented.
+
+==================================================
+11. TREE MANAGEMENT
+==================================================
+
+Create full CRUD.
+
+Users can:
+
+- Add tree
+- View tree
+- Edit tree
+- Delete tree
+- Search trees
+- Filter trees
+- Sort trees
+- View tree details
+
+Tree form fields:
+
+- Tree Code
+- Species
+- Common Name
+- Planting Date
+- Location
+- Latitude
+- Longitude
+- Status
+- Health Condition
+- Image
+- Notes
+
+Validate all inputs.
+
+==================================================
+12. SPECIES MANAGEMENT
+==================================================
+
+Create species management.
+
+Users can:
+
+- Add species
+- Edit species
+- Delete species
+- Search species
+- View species
+
+Display:
+
+- Species name
+- Scientific name
+- Number of planted trees
+- Survival rate
+
+Sample species:
+
+- Neem
+- Mango
+- Banyan
+- Peepal
+- Teak
+- Guava
+
+==================================================
+13. LOCATION AND MAP
+==================================================
+
+Use:
+
+Leaflet + OpenStreetMap
+
+Create:
+
+/map
+
+Display planted trees as markers.
+
+Each marker should show:
+
+- Tree code
+- Species
+- Status
+- Health
+- Planting date
+
+Allow users to select a marker and open tree details.
+
+==================================================
+14. SURVIVAL RATE
+==================================================
+
+Calculate:
+
+Survival Rate =
+(Living Trees / Total Trees Planted) × 100
+
+Display:
+
+- Overall survival rate
+- Species-wise survival rate
+- Location-wise survival rate
+- Survival trends
+
+Do not hardcode these statistics.
+
+Calculate them from Supabase data.
+
+==================================================
+15. MAINTENANCE MANAGEMENT
+==================================================
+
+Create maintenance CRUD.
+
+Maintenance types:
+
+- Watering
+- Fertilizing
+- Pruning
+- Pest Control
+- Disease Treatment
+- Soil Treatment
+- Other
+
+Each record contains:
+
+- Tree
+- Activity
+- Date
+- Staff member
+- Description
+- Notes
+
+Display maintenance history for every tree.
+
+==================================================
+16. AI TREE HEALTH ANALYSIS
+==================================================
+
+Create an AI health-analysis feature.
+
+User flow:
+
+1. User opens tree details.
+2. User uploads a tree/leaf image.
+3. Image is stored in Supabase Storage.
+4. Image is sent to AI service.
+5. AI analyzes the image.
+6. Result is saved to health_analysis.
+7. Result is displayed to the user.
+
+Return:
+
+- Health status
+- Possible issue
+- Confidence score
+- Recommended action
+
+Example:
+
+Health:
+Needs Attention
+
+Possible Issue:
+Possible leaf disease symptoms
+
+Confidence:
+82%
+
+Recommendation:
+Inspect the leaves and check watering conditions.
+
+IMPORTANT:
+Clearly state that this is an AI-based assessment and not a guaranteed diagnosis.
+
+==================================================
+17. AI SURVIVAL PREDICTION
+==================================================
+
+Build a survival prediction feature.
+
+Use inputs such as:
+
+- Species
+- Tree age
+- Location
+- Health condition
+- Maintenance history
+- Environmental conditions
+- Historical survival data
+
+Output:
+
+- Survival probability
+- Risk level
+- Prediction factors
+
+Example:
+
+Survival Probability: 87%
+Risk: Low
+
+Factors:
+- Suitable species
+- Healthy condition
+- Regular maintenance
+
+Use a simple ML model such as:
+
+Random Forest
+or
+Logistic Regression
+
+If real training data is unavailable:
+
+Create clearly labeled demo training data.
+
+Do not present demo predictions as scientifically validated.
+
+==================================================
+18. AI MAINTENANCE RECOMMENDATIONS
+==================================================
+
+Generate intelligent recommendations using:
+
+- Species
+- Age
+- Health
+- Maintenance history
+- Survival probability
+- Location
+- Environmental data if available
+
+Example:
+
+Priority: HIGH
+
+Recommendation:
+Water the tree and inspect the leaves.
+
+Reason:
+The tree has poor health and has not received recent maintenance.
+
+==================================================
+19. AI INTELLIGENT INSIGHTS
+==================================================
+
+Analyze organization data.
+
+Generate insights such as:
+
+- Locations with low survival
+- Species with high survival
+- Species with low survival
+- Trees requiring attention
+- High-risk trees
+- Maintenance gaps
+- Survival trends
+- Plantation trends
+
+Example:
+
+"Zone A has a lower survival rate than the organization average. Increase watering and monitor soil conditions."
+
+Insights must be based on actual database information.
+
+==================================================
+20. AI CHATBOT
+==================================================
+
+Create:
+
+/chatbot
+
+The chatbot should answer questions about organization data.
+
+Examples:
+
+"How many trees have we planted?"
+
+"What is our survival rate?"
+
+"Which trees need maintenance?"
+
+"Which species has the highest survival rate?"
+
+"Which location has the lowest survival rate?"
+
+"Which trees have high survival risk?"
+
+"Show trees that have not been maintained recently."
+
+FLOW:
+
+User Question
+      ↓
+Retrieve relevant Supabase data
+      ↓
+Create context
+      ↓
+Send context to LLM
+      ↓
+Generate answer
+
+IMPORTANT:
+
+Never invent database statistics.
+
+If data is unavailable:
+
+"I don't have enough data to answer that accurately."
+
+==================================================
+21. SMART ALERTS
+==================================================
+
+Generate alerts for:
+
+- Critical tree health
+- Poor health
+- High survival risk
+- Maintenance overdue
+- Low-survival locations
+- Possible health issues
+
+Priority:
+
+LOW
+MEDIUM
+HIGH
+CRITICAL
+
+Dashboard should show alerts.
+
+==================================================
+22. DASHBOARD
+==================================================
+
+Create:
+
+/dashboard
+
+TOP CARDS:
+
+Total Trees
+Living Trees
+Dead Trees
+Survival Rate
+Trees Needing Attention
+
+CHARTS:
+
+- Survival Rate
+- Species Distribution
+- Location-wise Tree Count
+- Plantation Trends
+- Maintenance Activities
+
+AI SECTION:
+
+- AI Health Alerts
+- Survival Predictions
+- AI Recommendations
+- Intelligent Insights
+
+RECENT ACTIVITY:
+
+- Recently added trees
+- Recent maintenance
+- Recent AI analysis
+
+All dashboard information must come from Supabase.
+
+==================================================
+23. REPORTS
+==================================================
+
+Create:
+
+/reports
+
+Reports:
+
+- Tree inventory
+- Survival statistics
+- Species statistics
+- Location statistics
+- Maintenance statistics
+- AI predictions
+
+Allow CSV export.
+
+PDF export can be added if practical.
+
+==================================================
+24. SEARCH AND FILTERING
+==================================================
+
+Trees should support:
+
+Search by:
+
+- Tree Code
+- Species
+- Location
+
+Filter by:
+
+- Species
+- Location
+- Status
+- Health
+- Survival risk
+- Planting date
+- Maintenance status
+
+Use pagination if necessary.
+
+==================================================
+25. FRONTEND PAGES
+==================================================
+
+Create:
+
+/login
+/register
+/dashboard
+/trees
+/trees/add
+/trees/:id
+/trees/:id/edit
+/species
+/locations
+/map
+/maintenance
+/ai-health
+/ai-prediction
+/ai-recommendations
+/ai-insights
+/chatbot
+/alerts
+/reports
+/profile
+/settings
+
+==================================================
+26. UI DESIGN
+==================================================
+
+Create a modern professional environmental dashboard.
+
+Theme:
+
+- Clean
+- Green/environmental feel
+- Professional
+- Minimal
+- Responsive
+
+Use:
+
+- Sidebar
+- Navbar
+- Cards
+- Tables
+- Charts
+- Forms
+- Modals
+- Toast notifications
+- Loading indicators
+- Empty states
+- Error states
+- Confirmation dialogs
+
+Make it responsive on:
+
+- Desktop
+- Laptop
+- Tablet
+- Mobile
+
+Do not overcomplicate the UI.
+
+==================================================
+27. API ENDPOINTS
+==================================================
+
+AUTH:
+
+POST /api/auth/profile
+
+TREES:
+
+GET /api/trees
+POST /api/trees
+GET /api/trees/:id
+PUT /api/trees/:id
+DELETE /api/trees/:id
+
+SPECIES:
+
+GET /api/species
+POST /api/species
+GET /api/species/:id
+PUT /api/species/:id
+DELETE /api/species/:id
+
+LOCATIONS:
+
+GET /api/locations
+POST /api/locations
+PUT /api/locations/:id
+DELETE /api/locations/:id
+
+MAINTENANCE:
+
+GET /api/maintenance
+POST /api/maintenance
+GET /api/maintenance/:id
+PUT /api/maintenance/:id
+DELETE /api/maintenance/:id
+
+DASHBOARD:
+
+GET /api/dashboard/statistics
+GET /api/dashboard/survival
+GET /api/dashboard/species
+GET /api/dashboard/locations
+GET /api/dashboard/maintenance
+
+AI:
+
+POST /api/ai/health-analysis
+POST /api/ai/survival-prediction
+POST /api/ai/maintenance-recommendation
+GET /api/ai/insights
+POST /api/ai/chat
+
+ALERTS:
+
+GET /api/alerts
+PUT /api/alerts/:id
+DELETE /api/alerts/:id
+
+REPORTS:
+
+GET /api/reports/trees
+GET /api/reports/survival
+GET /api/reports/maintenance
+
+==================================================
+28. FILE UPLOAD
+==================================================
+
+Use Supabase Storage.
+
+Bucket:
+
+tree-images
+
+Allow:
+
+- JPG
+- JPEG
+- PNG
+- WEBP
+
+Validate:
+
+- File type
+- File size
+
+Do not allow unsafe file types.
+
+==================================================
+29. SECURITY
+==================================================
+
+Implement:
+
+- Supabase Auth
+- RLS
+- Protected frontend routes
+- Backend authentication checks
+- Input validation
+- Error handling
+- File validation
+- Secure CORS
+- Rate limiting where appropriate
+- Environment variables
+
+Never expose:
+
+- Service-role key
+- LLM secret key
+- Database password
+- JWT secret
+- Other private credentials
+
+==================================================
+30. REPLIT CONFIGURATION
+==================================================
+
+Make the application easy to run inside Replit.
+
+Create:
+
+package.json
+
+Scripts:
+
+npm run dev
+npm run start
+npm run build
+
+If using separate frontend/backend processes, configure them clearly.
+
+Prefer a simple development setup.
+
+The final application should start with a simple Replit Run command.
+
+If needed, use concurrently to run frontend and backend.
+
+==================================================
+31. ENVIRONMENT VARIABLES
+==================================================
+
+Use Replit Secrets.
+
+Required:
+
+SUPABASE_URL
+SUPABASE_PUBLISHABLE_KEY
+
+Optional:
+
+SUPABASE_SERVICE_ROLE_KEY
+LLM_API_KEY
+AI_SERVICE_URL
+
+Never write actual secret values into source code.
+
+Create:
+
+.env.example
+
+==================================================
+32. DEMO DATA
+==================================================
+
+Create seed/demo data.
+
+Include:
+
+1 Demo Organization
+
+Sample users:
+
+Admin
+Staff
+
+Sample species:
+
+Neem
+Mango
+Banyan
+Peepal
+Teak
+Guava
+
+Create at least 20-30 sample trees.
+
+Include different:
+
+- Locations
+- Species
+- Statuses
+- Health conditions
+- Maintenance records
+
+This should make the dashboard meaningful immediately.
+
+==================================================
+33. ERROR HANDLING
+==================================================
+
+Handle:
+
+- Invalid forms
+- Network errors
+- Database errors
+- Authentication errors
+- AI failures
+- Upload failures
+- Missing records
+- Unauthorized access
+
+Show friendly messages.
+
+Never expose technical stack traces to users.
+
+==================================================
+34. AI FAILURE FALLBACK
+==================================================
+
+The core application must continue working if AI services are unavailable.
+
+If AI fails:
+
+- Show an understandable error
+- Do not crash the application
+- Allow tree management to continue
+- Provide basic rule-based recommendations where possible
+
+==================================================
+35. PROJECT STRUCTURE
+==================================================
+
+Use:
+
+green-track/
+│
+├── client/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── layouts/
+│   │   ├── services/
+│   │   ├── hooks/
+│   │   ├── context/
+│   │   ├── utils/
+│   │   ├── lib/
+│   │   │   └── supabase.js
+│   │   ├── App.jsx
+│   │   └── main.jsx
+│   └── package.json
+│
+├── server/
+│   ├── controllers/
+│   ├── routes/
+│   ├── middleware/
+│   ├── services/
+│   ├── utils/
+│   └── server.js
+│
+├── ai/
+│   ├── models/
+│   ├── services/
+│   └── README.md
+│
+├── supabase/
+│   ├── schema.sql
+│   ├── seed.sql
+│   └── migrations/
+│
+├── .env.example
+├── .gitignore
+├── package.json
+└── README.md
+
+You may adjust the structure if a simpler Replit-compatible structure is better.
+
+==================================================
+36. DEVELOPMENT PHASES
+==================================================
+
+Implement in this exact order.
+
+PHASE 1:
+Project setup
+
+PHASE 2:
+Supabase configuration
+
+PHASE 3:
+Authentication
+
+PHASE 4:
+Database schema
+
+PHASE 5:
+Tree CRUD
+
+PHASE 6:
+Species management
+
+PHASE 7:
+Location/map
+
+PHASE 8:
+Maintenance
+
+PHASE 9:
+Dashboard
+
+PHASE 10:
+AI health analysis
+
+PHASE 11:
+AI survival prediction
+
+PHASE 12:
+AI recommendations
+
+PHASE 13:
+AI insights
+
+PHASE 14:
+AI chatbot
+
+PHASE 15:
+Alerts
+
+PHASE 16:
+Reports
+
+PHASE 17:
+Testing
+
+PHASE 18:
+UI polish
+
+==================================================
+37. TESTING
+==================================================
+
+Test:
+
+AUTH:
+- Register
+- Login
+- Logout
+- Invalid credentials
+- Protected routes
+
+TREE:
+- Add
+- View
+- Edit
+- Delete
+- Search
+- Filter
+
+SPECIES:
+- CRUD
+
+LOCATION:
+- Add
+- Map display
+
+MAINTENANCE:
+- Add
+- Edit
+- Delete
+- History
+
+DASHBOARD:
+- Statistics
+- Charts
+- Survival rate
+
+AI:
+- Health analysis
+- Survival prediction
+- Recommendations
+- Insights
+- Chatbot
+
+SECURITY:
+- Unauthorized requests
+- RLS
+- Invalid input
+- File validation
+
+==================================================
+38. README
+==================================================
+
+Create a complete README containing:
+
+- Project title
+- Problem statement
+- Objective
+- Features
+- Technology stack
+- Architecture
+- Database structure
+- Supabase setup
+- Replit setup
+- Environment variables
+- Installation
+- Running instructions
+- Demo credentials
+- API endpoints
+- AI features
+- Testing
+- Future improvements
+
+==================================================
+39. IMPORTANT DEVELOPMENT RULES
+==================================================
+
+1. Do not build a fake/static UI.
+2. Do not hardcode dashboard statistics.
+3. Use Supabase as the actual database.
+4. Make CRUD operations functional.
+5. Make authentication functional.
+6. Connect frontend to backend.
+7. Connect backend to Supabase.
+8. Make AI modules functional or provide a working fallback.
+9. Use realistic demo data.
+10. Keep code modular.
+11. Keep code readable.
+12. Avoid unnecessary dependencies.
+13. Do not expose secrets.
+14. Use proper loading and error states.
+15. Make the application responsive.
+16. Test every major feature before moving forward.
+
+==================================================
+40. FINAL DEMO FLOW
+==================================================
+
+The completed application must support this demonstration:
+
+1. Open GreenTrack.
+2. Register/login.
+3. Open dashboard.
+4. View total trees and survival statistics.
+5. Add a new tree.
+6. Select species.
+7. Add location.
+8. Save tree.
+9. View tree in tree list.
+10. View tree on map.
+11. Add maintenance activity.
+12. Upload tree image.
+13. Run AI health analysis.
+14. View AI health result.
+15. Run survival prediction.
+16. View survival probability.
+17. View AI maintenance recommendation.
+18. View AI insights.
+19. Open chatbot.
+20. Ask:
+   "Which trees need maintenance?"
+21. Chatbot retrieves actual Supabase data.
+22. View alerts.
+23. Generate report.
+
+==================================================
+41. FINAL QUALITY TARGET
+==================================================
+
+The final application should look and feel like a real environmental management platform.
+
+It should demonstrate:
+
+FULL STACK:
+React + Node.js + Express + Supabase
+
+DATABASE:
+PostgreSQL through Supabase
+
+AUTH:
+Supabase Auth
+
+STORAGE:
+Supabase Storage
+
+MAP:
+Leaflet + OpenStreetMap
+
+AI:
+Health Analysis
+Survival Prediction
+Maintenance Recommendations
+Intelligent Insights
+AI Chatbot
+
+ANALYTICS:
+Charts
+Statistics
+Survival Rate
+Species Analysis
+Location Analysis
+
+The project should be suitable for:
+
+- College major project
+- Full-stack project demonstration
+- AI project demonstration
+- Hackathon
+- Portfolio project
+
+==================================================
+42. START NOW
+==================================================
+
+Start by:
+
+1. Inspecting the current Replit workspace.
+2. Creating the project structure.
+3. Installing only required dependencies.
+4. Configuring Supabase using Replit Secrets.
+5. Creating the Supabase database schema.
+6. Creating seed/demo data.
+7. Implementing authentication.
+8. Building the dashboard.
+9. Implementing tree CRUD.
+10. Continuing through all phases above.
+
+Do not stop after creating the UI.
+
+Continue until the core application is fully functional.
+
+Whenever you encounter an issue, diagnose it, fix it, and continue.
+
+At the end, verify that the application can be started in Replit and that the main user flow works from login → dashboard → tree management → maintenance → AI → reports.

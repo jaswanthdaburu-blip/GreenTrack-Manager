@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "GreenTrack"
+description = "An AI-powered tree plantation management platform for organizations to manage trees, species, locations, maintenance, health, alerts, and sustainability analytics."
+version = "1.0.0"
+id = "artifacts/greentrack"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 25741
+
+[services.development]
+run = "pnpm --filter @workspace/greentrack run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/greentrack", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/greentrack/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25741"
+BASE_PATH = "/"
